@@ -7,6 +7,8 @@ pipeline {
         stage('Test') {
             steps {
                 script {
+                    import java.text.SimpleDateFormat
+
                     /* Log in to aptible using the Spark-E user */
                     sh "HOME=. aptible login --email support@trialspark.com --password \"${SPARK_APTIBLE_PASSWORD}\" --lifetime \"1 day\""
 
@@ -17,10 +19,10 @@ pipeline {
                     def backup_id = sh (returnStdout: true, script: "APTIBLE_ACCESS_TOKEN=${token} aptible backup:list spark-staging-1 | head -n 1 | awk '{ print \$1; }' | sed 's/:\$//'")
                     backup_id = backup_id.trim()
 
-                    println backup_id
-
                     /* Make handle name */
-                    def backup_handle = "REMOVE_ME_spark-staging-1"
+                    def date = new Date()
+                    sdf = new SimpleDateFormat("MMddyyyyHHmmss")
+                    def backup_handle = sdf.format(date) + "_spark-staging-1"
 
                     /* Restore the latest backup */
                     sh "echo \"Restoring backup ${backup_id} to ${backup_handle}\""
