@@ -13,8 +13,8 @@ pipeline {
                 sh 'backup_id=$(aptible backup:list spark-staging-1 | head -n 1 | awk \'{ print $1; }\' | sed \'s/:$//\')'
 
                 /* Make handle name */
-                backup_handle=$(date +"%Y%m%d%H%M%S")
-                backup_handle+='_spark-staging-1'
+                sh 'backup_handle=$(date +"%Y%m%d%H%M%S")'
+                sh 'backup_handle+="_spark-staging-1"'
 
                 /* Restore the latest backup */
                 sh 'echo "Restoring backup $backup_id to $backup_handle"'
