@@ -26,7 +26,7 @@ pipeline {
 
                     /* Restore the latest backup */
                     sh "echo \"Restoring backup ${backup_id} to ${backup_handle}\""
-                    sh "APTIBLE_ACCESS_TOKEN=${token} aptible backup:restore ${backup_id} --handle=${backup_handle}"
+                    sh "HOME=. APTIBLE_ACCESS_TOKEN=${token} aptible backup:restore ${backup_id} --handle=${backup_handle}"
                 }
             }
         }
