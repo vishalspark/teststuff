@@ -25,7 +25,7 @@ def makeBackup(aptibleToken, sourceDb, backupHandle, deepthoughtApp) {
 }
 
 pipeline {
-    agent { dockerfile { dir 'scripts/etl_sourcer' } }
+    agent { dockerfile true }
     environment {
         SPARK_APTIBLE_PASSWORD = credentials('SPARK_APTIBLE_PASSWORD')
     }    
