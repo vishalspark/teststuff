@@ -6,8 +6,10 @@ pipeline {
     stages {
         stage('Test') {
             steps {
+                sh "echo ${HOME}"
+                
                 /* Log in to aptible using the Spark-E user */
-                sh "aptible login --email support@trialspark.com --password \"${SPARK_APTIBLE_PASSWORD}\" --lifetime \"1 day\""
+                sh "HOME=. aptible login --email support@trialspark.com --password \"${SPARK_APTIBLE_PASSWORD}\" --lifetime \"1 day\""
 
                 /* Extract the latest backup ID */
                 sh "backup_id=\$(aptible backup:list spark-staging-1 | head -n 1 | awk '{ print \$1; }' | sed 's/:\$//')"
