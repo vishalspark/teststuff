@@ -15,6 +15,9 @@ pipeline {
 
                     /* Extract the latest backup ID */
                     def backup_id = sh (returnStdout: true, script: "APTIBLE_ACCESS_TOKEN=${token} aptible backup:list spark-staging-1 | head -n 1 | awk '{ print \$1; }' | sed 's/:\$//'")
+                    backup_id = backup_id.trim()
+
+                    println backup_id
 
                     /* Make handle name */
                     def backup_handle = "REMOVE_ME_spark-staging-1"
