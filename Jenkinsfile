@@ -1,3 +1,5 @@
+import java.text.SimpleDateFormat
+
 pipeline {
     agent { dockerfile true }
     environment {
@@ -7,8 +9,6 @@ pipeline {
         stage('Test') {
             steps {
                 script {
-                    import java.text.SimpleDateFormat
-
                     /* Log in to aptible using the Spark-E user */
                     sh "HOME=. aptible login --email support@trialspark.com --password \"${SPARK_APTIBLE_PASSWORD}\" --lifetime \"1 day\""
 
