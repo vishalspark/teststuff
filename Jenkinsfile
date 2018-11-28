@@ -6,21 +6,22 @@ pipeline {
     stages {
         stage('Test') {
             steps {
-                sh 'pwd'
+                sh "pwd"
+                sh "echo $HOME"
 
                 /* Log in to aptible using the Spark-E user */
-                sh 'aptible login --email support@trialspark.com --password "$SPARK_APTIBLE_PASSWORD" --lifetime "1 day"'
+                sh "HOME=. aptible login --email support@trialspark.com --password \"$SPARK_APTIBLE_PASSWORD\" --lifetime \"1 day\""
 
                 /* Extract the latest backup ID */
-                sh 'backup_id=$(aptible backup:list spark-staging-1 | head -n 1 | awk \'{ print $1; }\' | sed \'s/:$//\')'
+                sh "backup_id=$(aptible backup:list spark-staging-1 | head -n 1 | awk \'{ print $1; }\' | sed \'s/:$//\')"
 
                 /* Make handle name */
-                sh 'backup_handle=$(date +"%Y%m%d%H%M%S")'
-                sh 'backup_handle+="_spark-staging-1"'
+                sh "backup_handle=$(date +\"%Y%m%d%H%M%S\")"
+                sh "backup_handle+=\"_spark-staging-1\""
 
                 /* Restore the latest backup */
-                sh 'echo "Restoring backup $backup_id to $backup_handle"'
-                sh 'aptible backup:restore $backup_id --handle=$backup_handle'
+                sh "echo 'Restoring backup $backup_id to $backup_handle'"
+                sh "aptible backup:restore $backup_id --handle=$backup_handle"
             }
         }
     }
