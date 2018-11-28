@@ -1,5 +1,7 @@
 FROM quay.io/aptible/ubuntu:14.04
 
+USER jenkins
+
 RUN rm /bin/sh && ln -s /bin/bash /bin/sh
 RUN apt-install -y npm build-essential libssl-dev curl make sudo wget apt-transport-https
 
