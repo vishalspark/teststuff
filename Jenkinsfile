@@ -9,6 +9,9 @@ pipeline {
         stage('Test') {
             steps {
                 script {
+                    sh "chmod u+rwx ./create_backup_db.sh"
+                    sh "./create_backup_db.sh"
+                    
                     /* Log in to aptible using the Spark-E user */
                     sh "HOME=. aptible login --email support@trialspark.com --password \"${SPARK_APTIBLE_PASSWORD}\" --lifetime \"1 day\""
 
