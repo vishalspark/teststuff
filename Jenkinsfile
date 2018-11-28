@@ -33,6 +33,7 @@ pipeline {
 
                     if (prev_handle.length() > 0) {
                         /* Clean up the previously used backup */
+                        prev_handle = prev_handle.split('=')[1]
                         sh "APTIBLE_ACCESS_TOKEN=${aptibleToken} aptible db:deprovision ${prev_handle}"
                     }
 
@@ -62,6 +63,7 @@ pipeline {
 
                     if (prev_handle.length() > 0) {
                         /* Clean up the previously used backup */
+                        prev_handle = prev_handle.split('=')[1]
                         sh "APTIBLE_ACCESS_TOKEN=${aptibleToken} aptible db:deprovision ${prev_handle}"
                     }
 
