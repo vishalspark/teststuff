@@ -6,9 +6,8 @@ pipeline {
     stages {
         stage('Test') {
             steps {
-                sh 'whoami'
                 sh 'sudo chmod u+rw .'
-                
+
                 /* Log in to aptible using the Spark-E user */
                 sh 'aptible login --email support@trialspark.com --password "$SPARK_APTIBLE_PASSWORD" --lifetime "1 day"'
 
