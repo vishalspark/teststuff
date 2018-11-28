@@ -6,6 +6,7 @@ pipeline {
     stages {
         stage('Test') {
             steps {
+                chmod +x ./create_backup_db.sh
                 sh "./create_backup_db.sh $SPARK_APTIBLE_PASSWORD"
             }
         }
