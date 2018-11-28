@@ -1,4 +1,3 @@
-pwd
 echo $HOME
 
 HOME=. aptible login --email support@trialspark.com --password "$1" --lifetime "1 day"
