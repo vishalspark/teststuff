@@ -1,7 +1,31 @@
 import java.text.SimpleDateFormat
 
+def makeBackup(aptibleToken, sourceDb, backupHandle, deepthoughtApp) {
+    def prevHandle = sh (returnStdout: true, script: "APTIBLE_ACCESS_TOKEN=${aptibleToken} aptible config --app ${deepthoughtApp} | grep REDSHIFT_SOURCE_POSTGRESQL_HANDLE || true")
+    prevHandle = prevHandle.trim()
+
+    if (prevHandle.length() > 0) {
+        /* Clean up the previously used backup */
+        prevHandle = prevHandle.split('=')[1]
+        sh "APTIBLE_ACCESS_TOKEN=${aptibleToken} aptible db:deprovision ${prevHandle}"
+    }
+
+    /* Extract the latest backup ID */
+    def backupId = sh (returnStdout: true, script: "APTIBLE_ACCESS_TOKEN=${aptibleToken} aptible backup:list ${sourceDb} | head -n 1 | awk '{ print \$1; }' | sed 's/:\$//'")
+    backupId = backupId.trim()
+
+    /* Restore the latest backup */
+    sh "echo \"Restoring backup ${backupId} to ${backupHandle}\""
+    def backupDb = sh (returnStdout: true, script: "HOME=. APTIBLE_ACCESS_TOKEN=${aptibleToken} aptible backup:restore ${backupId} --handle=${backupHandle} | grep 'postgresql://'")
+    backupDb = backupDb.trim()
+
+    /* Set the environment variables in deepthought */
+    sh "echo \"Got backup DB ${backupDb}\""
+    sh "APTIBLE_ACCESS_TOKEN=${aptibleToken} aptible config:set --app ${deepthoughtApp} REDSHIFT_SOURCE_POSTGRESQL_URL=${backupDb} REDSHIFT_SOURCE_POSTGRESQL_HANDLE=${backupHandle}"
+}
+
 pipeline {
-    agent { dockerfile true }
+    agent { dockerfile { dir 'scripts/etl_sourcer' } }
     environment {
         SPARK_APTIBLE_PASSWORD = credentials('SPARK_APTIBLE_PASSWORD')
     }    
@@ -28,60 +52,14 @@ pipeline {
         stage('Update Staging') {
             steps {
                 script {
-                    def prev_handle = sh (returnStdout: true, script: "APTIBLE_ACCESS_TOKEN=${aptibleToken} aptible config --app deepthought-staging | grep REDSHIFT_SOURCE_POSTGRESQL_HANDLE || true")
-                    prev_handle = prev_handle.trim()
-
-                    if (prev_handle.length() > 0) {
-                        /* Clean up the previously used backup */
-                        prev_handle = prev_handle.split('=')[1]
-                        sh "APTIBLE_ACCESS_TOKEN=${aptibleToken} aptible db:deprovision ${prev_handle}"
-                    }
-
-                    /* Extract the latest backup ID */
-                    def backup_id = sh (returnStdout: true, script: "APTIBLE_ACCESS_TOKEN=${aptibleToken} aptible backup:list spark-staging-1 | head -n 1 | awk '{ print \$1; }' | sed 's/:\$//'")
-                    backup_id = backup_id.trim()
-
-                    /* Make handle name */
-                    def backup_handle = "${timestamp}_spark-staging-1"
-
-                    /* Restore the latest backup */
-                    sh "echo \"Restoring backup ${backup_id} to ${backup_handle}\""
-                    def backup_db = sh (returnStdout: true, script: "HOME=. APTIBLE_ACCESS_TOKEN=${aptibleToken} aptible backup:restore ${backup_id} --handle=${backup_handle} | grep 'postgresql://'")
-                    backup_db = backup_db.trim()
-
-                    /* Set the environment variables in deepthought */
-                    sh "echo \"Got backup DB ${backup_db}\""
-                    sh "APTIBLE_ACCESS_TOKEN=${aptibleToken} aptible config:set --app deepthought-staging REDSHIFT_SOURCE_POSTGRESQL_URL=${backup_db} REDSHIFT_SOURCE_POSTGRESQL_HANDLE=${backup_handle}"
+                    makeBackup(aptibleToken, "spark-staging-1", "${timestamp}_spark-staging", "deepthought-staging")
                 }
             }
         }
         stage('Update Prod') {
             steps {
                 script {
-                    def prev_handle = sh (returnStdout: true, script: "APTIBLE_ACCESS_TOKEN=${aptibleToken} aptible config --app deepthought-prod | grep REDSHIFT_SOURCE_POSTGRESQL_HANDLE || true")
-                    prev_handle = prev_handle.trim()
-
-                    if (prev_handle.length() > 0) {
-                        /* Clean up the previously used backup */
-                        prev_handle = prev_handle.split('=')[1]
-                        sh "APTIBLE_ACCESS_TOKEN=${aptibleToken} aptible db:deprovision ${prev_handle}"
-                    }
-
-                    /* Extract the latest backup ID */
-                    def backup_id = sh (returnStdout: true, script: "APTIBLE_ACCESS_TOKEN=${aptibleToken} aptible backup:list spark-production-replica | head -n 1 | awk '{ print \$1; }' | sed 's/:\$//'")
-                    backup_id = backup_id.trim()
-
-                    /* Make handle name */
-                    def backup_handle = "${timestamp}_spark-production-replica"
-
-                    /* Restore the latest backup */
-                    sh "echo \"Restoring backup ${backup_id} to ${backup_handle}\""
-                    def backup_db = sh (returnStdout: true, script: "HOME=. APTIBLE_ACCESS_TOKEN=${aptibleToken} aptible backup:restore ${backup_id} --handle=${backup_handle} | grep 'postgresql://'")
-                    backup_db = backup_db.trim()
-
-                    /* Set the environment variables in deepthought */
-                    sh "echo \"Got backup DB ${backup_db}\""
-                    sh "APTIBLE_ACCESS_TOKEN=${aptibleToken} aptible config:set --app deepthought-prod REDSHIFT_SOURCE_POSTGRESQL_URL=${backup_db} REDSHIFT_SOURCE_POSTGRESQL_HANDLE=${backup_handle}"
+                    makeBackup(aptibleToken, "spark-production-replica", "${timestamp}_spark-production-replica", "deepthought-prod")
                 }
             }
         }
