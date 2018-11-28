@@ -9,8 +9,6 @@ pipeline {
         stage('Test') {
             steps {
                 script {
-                    sh "whoami"
-                    
                     /* Log in to aptible using the Spark-E user */
                     sh "HOME=. aptible login --email support@trialspark.com --password \"${SPARK_APTIBLE_PASSWORD}\" --lifetime \"1 day\""
 
@@ -30,7 +28,9 @@ pipeline {
                     sh "echo \"Restoring backup ${backup_id} to ${backup_handle}\""
                     def backup_db = sh (returnStdout: true, script: "HOME=. APTIBLE_ACCESS_TOKEN=${token} aptible backup:restore ${backup_id} --handle=${backup_handle} | grep 'postgresql://'")
 
-                    sh "APTIBLE_ACCESS_TOKEN=${token} aptible config:set --app deepthought-staging REDSHIFT_SOURCE_POSTGRESQL_URL=\"${backup_db}\" REDSHIFT_SOURCE_POSTGRESQL_HANDLE=\"${backup_handle}\""
+                    /* Set the environment variables in deepthought */
+                    sh "echo \"Got backup DB ${backup_db}\""
+                    sh "APTIBLE_ACCESS_TOKEN=${token} aptible config:set --app deepthought-staging REDSHIFT_SOURCE_POSTGRESQL_URL=${backup_db} REDSHIFT_SOURCE_POSTGRESQL_HANDLE=${backup_handle}"
                 }
             }
         }
