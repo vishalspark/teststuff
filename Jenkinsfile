@@ -28,7 +28,7 @@ pipeline {
         stage('Update Staging') {
             steps {
                 script {
-                    def prev_handle = sh (returnStdout: true, script: "APTIBLE_ACCESS_TOKEN=${aptibleToken} aptible config --app deepthought-staging | grep REDSHIFT_SOURCE_POSTGRESQL_HANDLE")
+                    def prev_handle = sh (returnStdout: true, script: "APTIBLE_ACCESS_TOKEN=${aptibleToken} aptible config --app deepthought-staging | grep REDSHIFT_SOURCE_POSTGRESQL_HANDLE || true")
                     prev_handle = prev_handle.trim()
 
                     if (prev_handle.length() > 0) {
@@ -57,7 +57,7 @@ pipeline {
         stage('Update Prod') {
             steps {
                 script {
-                    def prev_handle = sh (returnStdout: true, script: "APTIBLE_ACCESS_TOKEN=${aptibleToken} aptible config --app deepthought-prod | grep REDSHIFT_SOURCE_POSTGRESQL_HANDLE")
+                    def prev_handle = sh (returnStdout: true, script: "APTIBLE_ACCESS_TOKEN=${aptibleToken} aptible config --app deepthought-prod | grep REDSHIFT_SOURCE_POSTGRESQL_HANDLE || true")
                     prev_handle = prev_handle.trim()
 
                     if (prev_handle.length() > 0) {
