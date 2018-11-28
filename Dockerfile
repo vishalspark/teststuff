@@ -12,7 +12,7 @@ RUN sudo apt-get install aptible-toolbelt
 RUN aptible login --email support@trialspark.com --password "GE&mfDXKvK2N,qyHwjs4xFhsNtciQrHX" --lifetime "1 day"
 
 # Extract the latest backup ID
-RUN backup_id=$(aptible backup:list spark-staging-1 | head -n 1 | awk '{ print $1; }' | sed 's/:$//'
+RUN backup_id=$(aptible backup:list spark-staging-1 | head -n 1 | awk '{ print $1; }' | sed 's/:$//')
 
 # Make handle name
 RUN backup_handle=$(date +"%Y%m%d%H%M%S")
