@@ -37,12 +37,12 @@ pipeline {
 
                     /* Restore the latest backup */
                     sh "echo \"Restoring backup ${backup_id} to ${backup_handle}\""
-                    def backup_db = sh (returnStdout: true, script: "HOME=. APTIBLE_ACCESS_TOKEN=${token} aptible backup:restore ${backup_id} --handle=${backup_handle} | grep 'postgresql://'")
+                    def backup_db = sh (returnStdout: true, script: "HOME=. APTIBLE_ACCESS_TOKEN=${aptibleToken} aptible backup:restore ${backup_id} --handle=${backup_handle} | grep 'postgresql://'")
                     backup_db = backup_db.trim()
 
                     /* Set the environment variables in deepthought */
                     sh "echo \"Got backup DB ${backup_db}\""
-                    sh "APTIBLE_ACCESS_TOKEN=${token} aptible config:set --app deepthought-staging REDSHIFT_SOURCE_POSTGRESQL_URL=${backup_db} REDSHIFT_SOURCE_POSTGRESQL_HANDLE=${backup_handle}"
+                    sh "APTIBLE_ACCESS_TOKEN=${aptibleToken} aptible config:set --app deepthought-staging REDSHIFT_SOURCE_POSTGRESQL_URL=${backup_db} REDSHIFT_SOURCE_POSTGRESQL_HANDLE=${backup_handle}"
                 }
             }
         }
@@ -58,12 +58,12 @@ pipeline {
 
                     /* Restore the latest backup */
                     sh "echo \"Restoring backup ${backup_id} to ${backup_handle}\""
-                    def backup_db = sh (returnStdout: true, script: "HOME=. APTIBLE_ACCESS_TOKEN=${token} aptible backup:restore ${backup_id} --handle=${backup_handle} | grep 'postgresql://'")
+                    def backup_db = sh (returnStdout: true, script: "HOME=. APTIBLE_ACCESS_TOKEN=${aptibleToken} aptible backup:restore ${backup_id} --handle=${backup_handle} | grep 'postgresql://'")
                     backup_db = backup_db.trim()
 
                     /* Set the environment variables in deepthought */
                     sh "echo \"Got backup DB ${backup_db}\""
-                    sh "APTIBLE_ACCESS_TOKEN=${token} aptible config:set --app deepthought-prod REDSHIFT_SOURCE_POSTGRESQL_URL=${backup_db} REDSHIFT_SOURCE_POSTGRESQL_HANDLE=${backup_handle}"
+                    sh "APTIBLE_ACCESS_TOKEN=${aptibleToken} aptible config:set --app deepthought-prod REDSHIFT_SOURCE_POSTGRESQL_URL=${backup_db} REDSHIFT_SOURCE_POSTGRESQL_HANDLE=${backup_handle}"
                 }
             }
         }
