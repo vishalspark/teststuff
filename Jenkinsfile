@@ -28,7 +28,9 @@ pipeline {
 
                     /* Restore the latest backup */
                     sh "echo \"Restoring backup ${backup_id} to ${backup_handle}\""
-                    sh "HOME=. APTIBLE_ACCESS_TOKEN=${token} aptible backup:restore ${backup_id} --handle=${backup_handle}"
+                    def backup_db = sh (returnStdout: true, script: "HOME=. APTIBLE_ACCESS_TOKEN=${token} aptible backup:restore ${backup_id} --handle=${backup_handle} | grep 'postgresql://'")
+
+                    sh "APTIBLE_ACCESS_TOKEN=${token} aptible config:set --app deepthought-staging REDSHIFT_SOURCE_POSTGRESQL_URL=\"${backup_db}\" REDSHIFT_SOURCE_POSTGRESQL_HANDLE=\"${backup_handle}\""
                 }
             }
         }
